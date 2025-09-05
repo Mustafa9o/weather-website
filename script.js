@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const apiKey = '451480c7101073812eeabfc84ea9d6a3'; // IMPORTANT: Replace with your actual API key
+    // Replace with your OpenWeatherMap API key
+    const apiKey = '8f47401967df569bafe7e68c7f5ba155'; // IMPORTANT: Replace with your actual API key
     
     const searchContainer = document.querySelector('.search-container');
     const searchInput = document.querySelector('.search-input');
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let debounceTimer;
     
     // Check if API key is set
-    if (apiKey === '451480c7101073812eeabfc84ea9d6a3') {
+    if (apiKey === 'YOUR_API_KEY_HERE') {
         showError('Please set your OpenWeatherMap API key in script.js');
         return;
     }
@@ -45,13 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Function to get city suggestions (autocomplete)
     async function getCitySuggestions(query) {
-        if (query.length < 2) {
+        if (query.length < 1) {
             autocompleteDropdown.style.display = 'none';
             return;
         }
         
         try {
-            const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`;
+            // Use a more specific query to get cities that start with the input
+            const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}*&limit=20&appid=${apiKey}`;
             const response = await fetch(url);
             
             if (!response.ok) {
@@ -59,7 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const data = await response.json();
-            displayCitySuggestions(data);
+            
+            // Filter results to only include cities that start with the query (case insensitive)
+            const filteredCities = data.filter(city => 
+                city.name.toLowerCase().startsWith(query.toLowerCase())
+            );
+            
+            displayCitySuggestions(filteredCities);
         } catch (error) {
             console.error('Error fetching city suggestions:', error);
             autocompleteDropdown.style.display = 'none';
@@ -74,6 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
             autocompleteDropdown.style.display = 'none';
             return;
         }
+        
+        // Sort cities alphabetically by name
+        cities.sort((a, b) => a.name.localeCompare(b.name));
         
         cities.forEach(city => {
             const item = document.createElement('div');
@@ -105,6 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             autocompleteDropdown.appendChild(item);
         });
+        
+        // Show a message if there are more results
+        if (cities.length >= 20) {
+            const moreItem = document.createElement('div');
+            moreItem.classList.add('autocomplete-item', 'more-results');
+            moreItem.textContent = `More results available...`;
+            moreItem.style.fontStyle = 'italic';
+            moreItem.style.color = '#666';
+            autocompleteDropdown.appendChild(moreItem);
+        }
         
         autocompleteDropdown.style.display = 'block';
     }
@@ -301,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(debounceTimer);
         const query = e.target.value.trim();
         
-        if (query.length >= 2) {
+        if (query.length >= 1) {
             debounceTimer = setTimeout(() => {
                 getCitySuggestions(query);
             }, 300); // Debounce to avoid too many API calls
