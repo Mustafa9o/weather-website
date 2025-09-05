@@ -30,9 +30,13 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.search-container {
+    position: relative;
+    margin-bottom: 30px;
+}
+
 .search-box {
     display: flex;
-    margin-bottom: 30px;
 }
 
 .search-input {
@@ -62,6 +66,50 @@ body {
 
 .search-btn:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.autocomplete-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    color: #333;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.autocomplete-item.active {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+.autocomplete-item .city-name {
+    font-weight: 600;
+}
+
+.autocomplete-item .country-name {
+    font-size: 0.85rem;
+    color: #666;
+    margin-left: 5px;
 }
 
 .location-container {
