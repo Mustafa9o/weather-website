@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
+    // Replace with your OpenWeatherMap API key
+    const apiKey = '451480c7101073812eeabfc84ea9d6a3'; 
+    
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
     const locationElement = document.querySelector('.location');
