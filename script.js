@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Replace with your OpenWeatherMap API key
-    const apiKey = '451480c7101073812eeabfc84ea9d6a3'; 
+    const apiKey = 'YOUR_API_KEY_HERE'; // IMPORTANT: Replace with your actual API key
     
+    const searchContainer = document.querySelector('.search-container');
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
+    const autocompleteDropdown = document.querySelector('.autocomplete-dropdown');
     const locationElement = document.querySelector('.location');
     const dateElement = document.querySelector('.date');
     const tempElement = document.querySelector('.temp');
@@ -17,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Default city
     let city = 'New York';
+    let debounceTimer;
+    
+    // Check if API key is set
+    if (apiKey === 'YOUR_API_KEY_HERE') {
+        showError('Please set your OpenWeatherMap API key in script.js');
+        return;
+    }
     
     // Get current date
     function getCurrentDate() {
@@ -35,17 +44,93 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set current date
     dateElement.textContent = getCurrentDate();
     
+    // Function to get city suggestions (autocomplete)
+    async function getCitySuggestions(query) {
+        if (query.length < 2) {
+            autocompleteDropdown.style.display = 'none';
+            return;
+        }
+        
+        try {
+            const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch city suggestions');
+            }
+            
+            const data = await response.json();
+            displayCitySuggestions(data);
+        } catch (error) {
+            console.error('Error fetching city suggestions:', error);
+            autocompleteDropdown.style.display = 'none';
+        }
+    }
+    
+    // Function to display city suggestions
+    function displayCitySuggestions(cities) {
+        autocompleteDropdown.innerHTML = '';
+        
+        if (cities.length === 0) {
+            autocompleteDropdown.style.display = 'none';
+            return;
+        }
+        
+        cities.forEach(city => {
+            const item = document.createElement('div');
+            item.classList.add('autocomplete-item');
+            
+            const cityName = document.createElement('span');
+            cityName.classList.add('city-name');
+            cityName.textContent = city.name;
+            
+            const countryName = document.createElement('span');
+            countryName.classList.add('country-name');
+            countryName.textContent = city.country;
+            
+            if (city.state) {
+                const stateName = document.createElement('span');
+                stateName.classList.add('country-name');
+                stateName.textContent = `, ${city.state}`;
+                countryName.appendChild(stateName);
+            }
+            
+            item.appendChild(cityName);
+            item.appendChild(countryName);
+            
+            item.addEventListener('click', () => {
+                searchInput.value = `${city.name}${city.state ? `, ${city.state}` : ''}, ${city.country}`;
+                autocompleteDropdown.style.display = 'none';
+                getWeatherData(searchInput.value);
+            });
+            
+            autocompleteDropdown.appendChild(item);
+        });
+        
+        autocompleteDropdown.style.display = 'block';
+    }
+    
     // Function to get weather data
     async function getWeatherData(cityName) {
         try {
             showLoading();
+            autocompleteDropdown.style.display = 'none';
             
             // Current weather
             const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`;
             const currentWeatherResponse = await fetch(currentWeatherUrl);
             
+            // Check for API key issues
+            if (currentWeatherResponse.status === 401) {
+                throw new Error('Invalid API key. Please check your API key in script.js.');
+            }
+            
+            if (currentWeatherResponse.status === 404) {
+                throw new Error('City not found. Please check the city name.');
+            }
+            
             if (!currentWeatherResponse.ok) {
-                throw new Error('City not found');
+                throw new Error(`API error: ${currentWeatherResponse.status}`);
             }
             
             const currentWeatherData = await currentWeatherResponse.json();
@@ -53,6 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // 5-day forecast
             const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`;
             const forecastResponse = await fetch(forecastUrl);
+            
+            if (!forecastResponse.ok) {
+                throw new Error(`Forecast API error: ${forecastResponse.status}`);
+            }
+            
             const forecastData = await forecastResponse.json();
             
             // Update UI with current weather
@@ -64,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading();
         } catch (error) {
             hideLoading();
-            showError();
+            showError(error.message);
             console.error('Error fetching weather data:', error);
         }
     }
@@ -199,12 +289,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Function to show error message
-    function showError() {
+    function showError(message) {
+        errorMessage.textContent = message;
         errorMessage.style.display = 'block';
         setTimeout(() => {
             errorMessage.style.display = 'none';
-        }, 3000);
+        }, 5000);
     }
+    
+    // Event listener for search input (autocomplete)
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const query = e.target.value.trim();
+        
+        if (query.length >= 2) {
+            debounceTimer = setTimeout(() => {
+                getCitySuggestions(query);
+            }, 300); // Debounce to avoid too many API calls
+        } else {
+            autocompleteDropdown.style.display = 'none';
+        }
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchContainer.contains(e.target)) {
+            autocompleteDropdown.style.display = 'none';
+        }
+    });
     
     // Event listener for search button
     searchBtn.addEventListener('click', () => {
