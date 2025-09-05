@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="weather-app">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Enter city name...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="location-container">
+                <h1 class="location">New York</h1>
+                <p class="date">Monday, January 1, 2023</p>
+            </div>
+            
+            <div class="weather-container">
+                <div class="temperature">
+                    <h2 class="temp">15°C</h2>
+                    <div class="weather-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                </div>
+                <p class="description">Clear Sky</p>
+            </div>
+            
+            <div class="weather-details">
+                <div class="detail-item">
+                    <i class="fas fa-wind"></i>
+                    <div class="detail-info">
+                        <p class="detail-label">Wind</p>
+                        <p class="detail-value">5 km/h</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-tint"></i>
+                    <div class="detail-info">
+                        <p class="detail-label">Humidity</p>
+                        <p class="detail-value">65%</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    <div class="detail-info">
+                        <p class="detail-label">Pressure</p>
+                        <p class="detail-value">1013 hPa</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="forecast-container">
+                <h3 class="forecast-title">5-Day Forecast</h3>
+                <div class="forecast">
+                    <div class="forecast-day">
+                        <p class="day-name">Tue</p>
+                        <i class="fas fa-cloud-sun"></i>
+                        <p class="day-temp">18°/12°</p>
+                    </div>
+                    <div class="forecast-day">
+                        <p class="day-name">Wed</p>
+                        <i class="fas fa-cloud-rain"></i>
+                        <p class="day-temp">16°/10°</p>
+                    </div>
+                    <div class="forecast-day">
+                        <p class="day-name">Thu</p>
+                        <i class="fas fa-cloud"></i>
+                        <p class="day-temp">14°/9°</p>
+                    </div>
+                    <div class="forecast-day">
+                        <p class="day-name">Fri</p>
+                        <i class="fas fa-sun"></i>
+                        <p class="day-temp">19°/13°</p>
+                    </div>
+                    <div class="forecast-day">
+                        <p class="day-name">Sat</p>
+                        <i class="fas fa-cloud-sun"></i>
+                        <p class="day-temp">17°/11°</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="error-message">
+        <p>City not found. Please try again.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
