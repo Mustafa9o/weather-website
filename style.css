@@ -1,0 +1,263 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(to bottom right, #1a2a6c, #b21f1f, #1a2a6c);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.weather-app {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-box {
+    display: flex;
+    margin-bottom: 30px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50px 0 0 50px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-btn {
+    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 0 50px 50px 0;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.search-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.location-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.location {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.date {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.weather-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.temperature {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.temp {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.weather-icon {
+    font-size: 3rem;
+    margin-left: 20px;
+}
+
+.description {
+    font-size: 1.2rem;
+    text-transform: capitalize;
+    opacity: 0.9;
+}
+
+.weather-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    width: 30%;
+}
+
+.detail-item i {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.detail-info p {
+    margin: 0;
+}
+
+.detail-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.detail-value {
+    font-weight: 600;
+}
+
+.forecast-container {
+    margin-top: 30px;
+}
+
+.forecast-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.forecast {
+    display: flex;
+    justify-content: space-between;
+}
+
+.forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    width: 18%;
+}
+
+.day-name {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.forecast-day i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.day-temp {
+    font-size: 0.9rem;
+}
+
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    display: none;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 0, 0, 0.7);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 50px;
+    z-index: 1001;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .weather-app {
+        padding: 20px;
+    }
+    
+    .location {
+        font-size: 2rem;
+    }
+    
+    .temp {
+        font-size: 3rem;
+    }
+    
+    .weather-icon {
+        font-size: 2rem;
+    }
+    
+    .weather-details {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .detail-item {
+        width: 100%;
+    }
+    
+    .forecast {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .forecast-day {
+        width: calc(50% - 5px);
+    }
+}
+
+@media (max-width: 480px) {
+    .forecast-day {
+        width: 100%;
+    }
+}
