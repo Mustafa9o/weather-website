@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Using one of the existing API keys from your table
-    const apiKey = '451480c7101073812eeabfc84ea9d6a3'; // Using the Default key
+    // API Keys Data
+    let apiKeys = [
+        { key: '451480c7101073812eeabfc84ea9d6a3', name: 'Default', status: 'active' },
+        { key: '8f47401967df569bafe7e68c7f5ba155', name: 'weather', status: 'active' }
+    ];
     
+    // Get the first active API key
+    const activeApiKey = apiKeys.find(key => key.status === 'active')?.key || '';
+    
+    // DOM Elements
     const searchContainer = document.querySelector('.search-container');
     const searchInput = document.querySelector('.search-input');
     const searchBtn = document.querySelector('.search-btn');
@@ -20,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Default city
     let city = 'New York';
     let debounceTimer;
+    
+    // Check if we have an API key
+    if (!activeApiKey) {
+        showError('No active API key found. Please activate an API key in the API Keys section.');
+        return;
+    }
     
     // Get current date
     function getCurrentDate() {
@@ -46,19 +59,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            // Use a more specific query to get cities that start with the input
-            const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}*&limit=20&appid=${apiKey}`;
+            console.log('Fetching city suggestions for:', query);
+            const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}*&limit=20&appid=${activeApiKey}`;
+            console.log('API URL:', url);
+            
             const response = await fetch(url);
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
-                throw new Error('Failed to fetch city suggestions');
+                const errorData = await response.json();
+                console.error('API Error:', errorData);
+                throw new Error(`API error: ${response.status} - ${errorData.message || 'Unknown error'}`);
             }
             
             const data = await response.json();
+            console.log('City suggestions data:', data);
             
             // Filter results to only include cities that start with the query (case insensitive)
             const filteredCities = data.filter(city => 
-                city.name.toLowerCase().startsWith(query.toLowerCase())
+                city.name && city.name.toLowerCase().startsWith(query.toLowerCase())
             );
             
             displayCitySuggestions(filteredCities);
@@ -103,9 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
             item.appendChild(countryName);
             
             item.addEventListener('click', () => {
-                searchInput.value = `${city.name}${city.state ? `, ${city.state}` : ''}, ${city.country}`;
+                const cityValue = `${city.name}${city.state ? `, ${city.state}` : ''}, ${city.country}`;
+                searchInput.value = cityValue;
                 autocompleteDropdown.style.display = 'none';
-                getWeatherData(searchInput.value);
+                getWeatherData(cityValue);
             });
             
             autocompleteDropdown.appendChild(item);
@@ -127,16 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to get weather data
     async function getWeatherData(cityName) {
         try {
+            console.log('Fetching weather data for:', cityName);
             showLoading();
             autocompleteDropdown.style.display = 'none';
             
             // Current weather
-            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`;
+            const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${activeApiKey}&units=metric`;
+            console.log('Weather API URL:', currentWeatherUrl);
+            
             const currentWeatherResponse = await fetch(currentWeatherUrl);
+            console.log('Weather response status:', currentWeatherResponse.status);
             
             // Check for API key issues
             if (currentWeatherResponse.status === 401) {
-                throw new Error('Invalid API key. Please check your API key in script.js.');
+                throw new Error('Invalid API key. Please check your API key in the API Keys section.');
             }
             
             if (currentWeatherResponse.status === 404) {
@@ -144,20 +168,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (!currentWeatherResponse.ok) {
-                throw new Error(`API error: ${currentWeatherResponse.status}`);
+                const errorData = await currentWeatherResponse.json();
+                console.error('Weather API Error:', errorData);
+                throw new Error(`Weather API error: ${currentWeatherResponse.status} - ${errorData.message || 'Unknown error'}`);
             }
             
             const currentWeatherData = await currentWeatherResponse.json();
+            console.log('Weather data:', currentWeatherData);
             
             // 5-day forecast
-            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`;
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${activeApiKey}&units=metric`;
+            console.log('Forecast API URL:', forecastUrl);
+            
             const forecastResponse = await fetch(forecastUrl);
+            console.log('Forecast response status:', forecastResponse.status);
             
             if (!forecastResponse.ok) {
-                throw new Error(`Forecast API error: ${forecastResponse.status}`);
+                const errorData = await forecastResponse.json();
+                console.error('Forecast API Error:', errorData);
+                throw new Error(`Forecast API error: ${forecastResponse.status} - ${errorData.message || 'Unknown error'}`);
             }
             
             const forecastData = await forecastResponse.json();
+            console.log('Forecast data:', forecastData);
             
             // Update UI with current weather
             updateWeatherUI(currentWeatherData);
@@ -167,14 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             hideLoading();
         } catch (error) {
+            console.error('Error fetching weather data:', error);
             hideLoading();
             showError(error.message);
-            console.error('Error fetching weather data:', error);
         }
     }
     
     // Function to update weather UI
     function updateWeatherUI(data) {
+        console.log('Updating weather UI with data:', data);
         locationElement.textContent = data.name;
         tempElement.textContent = `${Math.round(data.main.temp)}°C`;
         descriptionElement.textContent = data.weather[0].description;
@@ -189,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Function to update forecast UI
     function updateForecastUI(data) {
+        console.log('Updating forecast UI with data:', data);
         const forecastContainer = document.querySelector('.forecast');
         forecastContainer.innerHTML = '';
         
@@ -335,9 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for search button
     searchBtn.addEventListener('click', () => {
         const searchValue = searchInput.value.trim();
+        console.log('Search button clicked with value:', searchValue);
         if (searchValue) {
             city = searchValue;
             getWeatherData(city);
+        } else {
+            showError('Please enter a city name');
         }
     });
     
@@ -345,20 +383,20 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('keyup', (event) => {
         if (event.key === 'Enter') {
             const searchValue = searchInput.value.trim();
+            console.log('Enter key pressed with value:', searchValue);
             if (searchValue) {
                 city = searchValue;
                 getWeatherData(city);
+            } else {
+                showError('Please enter a city name');
             }
         }
     });
     
     // Initial weather data fetch
     getWeatherData(city);
-});
-
-// API Key Management
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
+    
+    // API Key Management
     const createKeyBtn = document.getElementById('create-key-btn');
     const apiKeyModal = document.getElementById('api-key-modal');
     const closeModal = document.querySelector('.close-modal');
@@ -371,15 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyKeyBtn = document.getElementById('copy-key-btn');
     const apiKeysTbody = document.getElementById('api-keys-tbody');
     
-    // API Keys Data
-    let apiKeys = [
-        { key: '451480c7101073812eeabfc84ea9d6a3', name: 'Default', status: 'active' },
-        { key: '8f47401967df569bafe7e68c7f5ba155', name: 'weather', status: 'active' }
-    ];
-    
     let currentEditingKey = null;
     
-    // Event Listeners
+    // Event Listeners for API Key Management
     createKeyBtn.addEventListener('click', openCreateModal);
     closeModal.addEventListener('click', closeApiModal);
     cancelBtn.addEventListener('click', closeApiModal);
@@ -393,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Functions
+    // Functions for API Key Management
     function openCreateModal() {
         modalTitle.textContent = 'Create New API Key';
         keyNameInput.value = '';
@@ -558,6 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
     
-    // Initial render
+    // Initial render for API keys
     renderApiKeys();
 });
