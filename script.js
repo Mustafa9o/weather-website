@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let debounceTimer;
     
     // Check if API key is set
-    if (apiKey === 'YOUR_API_KEY_HERE') {
+    if (apiKey === '451480c7101073812eeabfc84ea9d6a3') {
         showError('Please set your OpenWeatherMap API key in script.js');
         return;
     }
